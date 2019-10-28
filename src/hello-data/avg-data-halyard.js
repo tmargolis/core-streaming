@@ -96,10 +96,10 @@ const socketio_port = '44444';
     const movies = layout.qHyperCube.qDataPages[0].qMatrix;
 
     console.log('Listing movie stats:');
-    avg = movies[0][0].qNum;
+    avg = Math.round(movies[0][0].qNum);
     min = movies[0][1].qNum;
     max = movies[0][2].qNum;
-    stdev = movies[0][3].qNum;
+    stdev = Math.round(movies[0][3].qNum);
 
     console.log('avg', avg);
     console.log('min', min);
@@ -117,18 +117,18 @@ const socketio_port = '44444';
       console.log('got a connection');
 
       socket.on('sensoremit', function(data, callback) {
-        testYear = data.readvalue * 500;
-        console.log("sensor data", testYear);
+        testYear = data.readvalue;
+        testPos = data.sensorclass;
 
         // TEST data for alerts //
         if(testYear < min) {
-          console.log('ALERT: ' + testYear + ' is below threshold');
-        }
-        if(testYear < avg-stdev || testYear > (avg+stdev)) {
-          console.log('WARNING: ' + testYear + ' is beyond normal range');
-        }
-        if(testYear > max) {
-          console.log('ALERT: ' + testYear + ' is above threshold');
+          console.log('(' + testPos + ') ALERT:   ' + testYear + ' is below threshold of ' + min);
+        }else if(testYear > max) {
+          console.log('(' + testPos + ') ALERT:   ' + testYear + ' is above threshold of ' + max);
+        }else if(testYear < avg-stdev*2 || testYear > avg+stdev*2) {
+          console.log('(' + testPos + ') WARNING: ' + testYear + ' is beyond normal range of ' + (avg-stdev*2) + '-' + (avg+stdev*2));
+        }else{
+          console.log('(' + testPos + ') normal:  ' + testYear);
         }
 
       });
